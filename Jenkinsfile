@@ -1,19 +1,20 @@
-pipeline{
+pipeline {
     options { 
         timeout(time: 5, unit: 'MINUTES') 
-        retry(2)
     }
     agent {
         label 'master'
     }
+	parameters{
+		string(name: 'REPO_URL', description: 'JAVA APPLICATIION GIT REPO URL')
+		string(name: 'BRANCH_NAME', description: 'JAVA APPLICATIION GIT REPO BRANCH NAME')
+	}
     environment {
         NAME = "Litesh Zadane"
-        BRANCH_NAME = "master"
-        REPO_URL = "https://github.com/liteshz1778/spring-boot-war-example.git"
     }
-    tools{
-	maven 'mavenV3.9.15'
-    }
+	tools{
+		maven 'mavenV3.9.15'
+	}
     stages{
         stage("Cleaning Workspace"){
             steps {
@@ -22,17 +23,15 @@ pipeline{
         }
         stage("Cloning Git Repo stage"){
             steps{
-                sh 'echo "Cloning Git Repo..."'
-		sh 'git clone -b ${BRANCH_NAME} ${REPO_URL}'
+				sh "git clone -b ${params.BRANCH_NAME} ${params.REPO_URL}"
                 sh 'echo "Job is runned by $NAME"'
             }
         }
 		stage("Detect Repo Name") {
             steps {
                 script {
-                    // extract repo name from URL
-                    env.REPO_NAME = REPO_URL.tokenize('/').last().replace('.git','')
-                    echo "Repo Name: ${env.REPO_NAME}"
+					env.REPO_NAME = params.REPO_URL.tokenize("/").last().replace(".git","")
+                    echo "REPO_NAME: ${env.REPO_NAME}"
                 }
             }
         }
